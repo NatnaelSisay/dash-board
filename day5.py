@@ -4,7 +4,11 @@ import streamlit as st
 import altair as alt
 from wordcloud import WordCloud
 import plotly.express as px
+
 from add_data import db_execute_fetch
+import clean_data
+import sentiment
+import topic
 
 st.set_page_config(page_title="Day 5", layout="wide")
 
@@ -14,6 +18,8 @@ def loadData():
     return df
 
 def selectHashTag():
+    # each tweet can have 0 to multiple hastags
+    # so how can we represent that in database ? 
     df = loadData()
     hashTags = st.multiselect("choose combaniation of hashtags", list(df['hashtags'].unique()))
     if hashTags:
@@ -67,10 +73,11 @@ def stBarChart():
     title = f"Top {num} Ranking By Number of tweets"
     barChart(dfCount.head(num), title, "original_author", "Tweet_count")
 
-
 def langPie():
     df = loadData()
+    df['language'] = df['language'].apply(lambda x :  'Others' if x != 'en' else x)
     dfLangCount = pd.DataFrame({'Tweet_count': df.groupby(['language'])['clean_text'].count()}).reset_index()
+    st.write(dfLangCount)
     dfLangCount["language"] = dfLangCount["language"].astype(str)
     dfLangCount = dfLangCount.sort_values("Tweet_count", ascending=False)
     dfLangCount.loc[dfLangCount['Tweet_count'] < 10, 'lang'] = 'Other languages'
@@ -86,12 +93,29 @@ def langPie():
         st.write(dfLangCount)
 
 
-st.title("Data Display")
-selectHashTag()
-st.markdown("<p style='padding:10px; background-color:#000000;color:#00ECB9;font-size:16px;border-radius:10px;'>Section Break</p>", unsafe_allow_html=True)
-# selectLocAndAuth()
-st.title("Data Visualizations")
-wordCloud()
-with st.beta_expander("Show More Graphs"):
-    stBarChart()
+st.title("Twitter MLDashboard")
+st.sidebar.markdown("# Natnael Sisay")
+page = st.sidebar.selectbox('Choose Page', ['Home', "Sentiment analysis", "Topical analysis"])
+# # selectHashTag()
+# st.markdown("<p style='padding:10px; background-color:#000000;color:#00ECB9;font-size:16px;border-radius:10px;'>Section Break</p>", unsafe_allow_html=True)
+# # selectLocAndAuth()
+# st.title("Data Visualizations")
+# wordCloud()
+# with st.beta_expander("Show More Graphs"):
+#     langPie()
+#     stBarChart()
+if page == 'Home':
+    count_empty, shape = clean_data.info()
+    st.write(f'Number of Empty tweets = {count_empty}\n\
+        Shape Of Data = {shape}')
+
+    wordCloud()
     langPie()
+    stBarChart()
+    
+elif page == 'Sentiment analysis':
+    sentiment.run()
+    # pass
+
+elif page == 'Topical analysis':
+    topic.run()

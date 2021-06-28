@@ -15,7 +15,7 @@ def DBConnect(dbName=None):
     -------
 
     """
-    conn = mysql.connect(host='localhost', user='root', password=os.environ['mysqlPass'],
+    conn = mysql.connect(host='localhost', user='root', password='1234567890',
                          database=dbName, buffered=True)
     cur = conn.cursor()
     return conn, cur
@@ -101,15 +101,6 @@ def preprocess_df(df: pd.DataFrame) -> pd.DataFrame:
     cols_2_drop = ['Unnamed: 0', 'timestamp', 'sentiment', 'possibly_sensitive', 'original_text']
     existing_columns = filter(lambda x: x in df.columns, cols_2_drop)
     return df.fillna(0)
-    try:
-        
-        df = df.drop(columns=existing_columns, axis=1)
-        df = df.fillna(0)
-        print('Columns => ', len(df.columns))
-    except KeyError as e:
-        print("Error:", e)
-
-    return df
 
 
 def insert_to_tweet_table(dbName: str, df: pd.DataFrame, table_name: str) -> None:
