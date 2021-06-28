@@ -44,14 +44,12 @@ def selectLocAndAuth():
     else:
         st.write(df)
 
-
 def barChart(data, title, X, Y):
     title = title.title()
     st.title(f'{title} Chart')
     msgChart = (alt.Chart(data).mark_bar().encode(alt.X(f"{X}:N", sort=alt.EncodingSortField(field=f"{Y}", op="values",
                 order='ascending')), y=f"{Y}:Q"))
     st.altair_chart(msgChart, use_container_width=True)
-
 
 def wordCloud():
     df = loadData()
@@ -65,7 +63,6 @@ def wordCloud():
     st.title("Tweet Text Word Cloud")
     st.image(wc.to_array())
 
-
 def stBarChart():
     df = loadData()
     dfCount = pd.DataFrame({'Tweet_count': df.groupby(['original_author'])['clean_text'].count()}).reset_index()
@@ -76,10 +73,11 @@ def stBarChart():
     title = f"Top {num} Ranking By Number of tweets"
     barChart(dfCount.head(num), title, "original_author", "Tweet_count")
 
-
 def langPie():
     df = loadData()
+    df['language'] = df['language'].apply(lambda x :  'Others' if x != 'en' else x)
     dfLangCount = pd.DataFrame({'Tweet_count': df.groupby(['language'])['clean_text'].count()}).reset_index()
+    st.write(dfLangCount)
     dfLangCount["language"] = dfLangCount["language"].astype(str)
     dfLangCount = dfLangCount.sort_values("Tweet_count", ascending=False)
     dfLangCount.loc[dfLangCount['Tweet_count'] < 10, 'lang'] = 'Other languages'
@@ -115,11 +113,9 @@ if page == 'Home':
     langPie()
     stBarChart()
     
-
 elif page == 'Sentiment analysis':
     sentiment.run()
     # pass
-
 
 elif page == 'Topical analysis':
     topic.run()
