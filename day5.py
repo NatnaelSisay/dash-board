@@ -107,15 +107,18 @@ page = st.sidebar.selectbox('Choose Page', ['Home', "Sentiment analysis", "Topic
 #     langPie()
 #     stBarChart()
 if page == 'Home':
-    # wordCloud()
-    # langPie()
-    # stBarChart()
     count_empty, shape = clean_data.info()
     st.write(f'Number of Empty tweets = {count_empty}\n\
         Shape Of Data = {shape}')
 
+    wordCloud()
+    langPie()
+    stBarChart()
+    
+
 elif page == 'Sentiment analysis':
     sentiment.run()
+    # pass
 
 
 elif page == 'Topical analysis':
